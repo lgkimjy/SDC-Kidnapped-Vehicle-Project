@@ -9,6 +9,7 @@
 using nlohmann::json;
 using std::string;
 using std::vector;
+using namespace std;
 
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
@@ -68,11 +69,10 @@ int main() {
             double sense_x = std::stod(j[1]["sense_x"].get<string>());
             double sense_y = std::stod(j[1]["sense_y"].get<string>());
             double sense_theta = std::stod(j[1]["sense_theta"].get<string>());
-
+            cout << sense_x << ", " << sense_y << endl;
             pf.init(sense_x, sense_y, sense_theta, sigma_pos);
           } else {
-            // Predict the vehicle's next state from previous 
-            //   (noiseless control) data.
+            // Predict the vehicle's next state from previous (noiseless control) data.
             double previous_velocity = std::stod(j[1]["previous_velocity"].get<string>());
             double previous_yawrate = std::stod(j[1]["previous_yawrate"].get<string>());
 

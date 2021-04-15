@@ -32,6 +32,19 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
    */
   num_particles = 0;  // TODO: Set the number of particles
 
+  for(int i=0; i<num_particles; i++){
+    Particle obj;
+    obj.id = i;
+    obj.x = x;
+    obj.y = y;
+    obj.theta = theta;
+    obj.weight = 1.0;
+    
+    particles.push_back(obj);
+  }
+
+  is_initialized = true;
+
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], 
