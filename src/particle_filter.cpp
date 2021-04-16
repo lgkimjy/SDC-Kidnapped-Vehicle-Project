@@ -3,6 +3,7 @@
  *
  * Created on: Dec 12, 2016
  * Author: Tiffany Huang
+ * Maintainer : Junyoung Kim
  */
 
 #include "particle_filter.h"
@@ -18,8 +19,8 @@
 
 #include "helper_functions.h"
 
-using std::string;
-using std::vector;
+using namespace std;
+default_random_engine gen;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
   /**
@@ -27,28 +28,34 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
    *   first position (based on estimates of x, y, theta and their uncertainties
    *   from GPS) and all weights to 1. 
    * TODO: Add random Gaussian noise to each particle.
-   * NOTE: Consult particle_filter.h for more information about this method 
-   *   (and others in this file).
+   * NOTE: Consult particle_filter.h for more information about this method (and others in this file).
    */
-  num_particles = 0;  // TODO: Set the number of particles
+  num_particles = 1000;  // TODO: Set the number of particles
 
+  normal_distribution<double> dist_x(0, std[0]);
+  normal_distribution<double> dist_y(0, std[1]);
+  normal_distribution<double> dist_theta(0, std[2]);
+  
   for(int i=0; i<num_particles; i++){
-    Particle obj;
-    obj.id = i;
-    obj.x = x;
-    obj.y = y;
-    obj.theta = theta;
-    obj.weight = 1.0;
-    
-    particles.push_back(obj);
+    Particle particle;
+    particle.id = i;
+    particle.x = x;
+    particle.y = y;
+    particle.theta = theta;
+    particle.weight = 1.0;
+
+    // TODO: Add random Gaussian noise to each particle.
+    particle.x += dist_x(gen);
+    particle.y += dist_y(gen);
+    particle.theta += dist_theta(gen);
+
+    particles.push_back(particle);
   }
 
   is_initialized = true;
-
 }
 
-void ParticleFilter::prediction(double delta_t, double std_pos[], 
-                                double velocity, double yaw_rate) {
+void ParticleFilter::prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {
   /**
    * TODO: Add measurements to each particle and add random Gaussian noise.
    * NOTE: When adding noise you may find std::normal_distribution 
@@ -59,8 +66,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 
 }
 
-void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, 
-                                     vector<LandmarkObs>& observations) {
+void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, vector<LandmarkObs>& observations) {
   /**
    * TODO: Find the predicted measurement that is closest to each 
    *   observed measurement and assign the observed measurement to this 
@@ -101,10 +107,8 @@ void ParticleFilter::resample() {
 
 }
 
-void ParticleFilter::SetAssociations(Particle& particle, 
-                                     const vector<int>& associations, 
-                                     const vector<double>& sense_x, 
-                                     const vector<double>& sense_y) {
+void ParticleFilter::SetAssociations(Particle& particle, const vector<int>& associations, 
+                                     const vector<double>& sense_x, const vector<double>& sense_y) {
   // particle: the particle to which assign each listed association, 
   //   and association's (x,y) world coordinates mapping
   // associations: The landmark id that goes along with each listed association

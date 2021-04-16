@@ -1,3 +1,9 @@
+/**
+ * main.cpp
+ * 
+ * Maintainer : Junyoung Kim
+ */
+
 #include <math.h>
 #include <uWS/uWS.h>
 #include <iostream>
@@ -30,7 +36,7 @@ int main() {
   uWS::Hub h;
 
   // Set up parameters here
-  double delta_t = 0.1;  // Time elapsed between measurements [sec]
+  double delta_t = 0.1;      // Time elapsed between measurements [sec]
   double sensor_range = 50;  // Sensor range [m]
 
   // GPS measurement uncertainty [x [m], y [m], theta [rad]]
@@ -75,13 +81,12 @@ int main() {
             // Predict the vehicle's next state from previous (noiseless control) data.
             double previous_velocity = std::stod(j[1]["previous_velocity"].get<string>());
             double previous_yawrate = std::stod(j[1]["previous_yawrate"].get<string>());
-
+            cout << previous_velocity << ", " << previous_yawrate << endl;
             pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
           }
 
           // receive noisy observation data from the simulator
-          // sense_observations in JSON format 
-          //   [{obs_x,obs_y},{obs_x,obs_y},...{obs_x,obs_y}] 
+          // sense_observations in JSON format [{obs_x,obs_y},{obs_x,obs_y},...{obs_x,obs_y}] 
           vector<LandmarkObs> noisy_observations;
           string sense_observations_x = j[1]["sense_observations_x"];
           string sense_observations_y = j[1]["sense_observations_y"];
@@ -127,16 +132,15 @@ int main() {
             weight_sum += particles[i].weight;
           }
 
-          std::cout << "highest w " << highest_weight << std::endl;
-          std::cout << "average w " << weight_sum/num_particles << std::endl;
+          // cout << "highest w " << highest_weight << std::endl;
+          // cout << "average w " << weight_sum/num_particles << std::endl;
 
           json msgJson;
           msgJson["best_particle_x"] = best_particle.x;
           msgJson["best_particle_y"] = best_particle.y;
           msgJson["best_particle_theta"] = best_particle.theta;
 
-          // Optional message data used for debugging particle's sensing 
-          //   and associations
+          // Optional message data used for debugging particle's sensing and associations
           msgJson["best_particle_associations"] = pf.getAssociations(best_particle);
           msgJson["best_particle_sense_x"] = pf.getSenseCoord(best_particle, "X");
           msgJson["best_particle_sense_y"] = pf.getSenseCoord(best_particle, "Y");
